@@ -31,7 +31,7 @@ defmodule Request do
 
   def roll(r) do
     droll = Enum.sum(Enum.map(( 1 .. r[:num] ), fn a ->
-      round(:random.uniform * r[:roll])
+      trunc(:random.uniform * r[:roll] + 1.0)
     end))
     dtext = to_string(r[:num]) <> "d" <> to_string(r[:roll])
     resp = %{type: "roll", roll: droll, color: r[:color], text: dtext}
