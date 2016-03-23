@@ -1,0 +1,39 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="roller.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto",
+        rel="stylesheet"
+        type="text/css">
+  <script src="client.js"></script>
+</head>
+<body>
+
+<div id="header">
+  <span id="title">ROLLER.ex</span>
+  <span id="room">-</span>
+</div>
+<div id="ribbon"></div>
+<div id="content">
+  <div id="rolls">
+
+  </div>
+  <div id="people">
+    <div id="roll-settings">
+      <input type="number" class="roll-num" id="rnumber" min="1"
+        style="text-align:right;" value="1">
+      </input>
+      <span id="d">d</span>
+      <input type="number" class="roll-num" value="20"
+        style="float:right;text-align:left;" id="rsides" min="1">
+      </input>
+    </div>
+    <input type="button" id="roll-button" onclick="roller_roll()" value="ROLL">
+    </input>
+
+  </div>
+</div>
+
+</body>
+</html>
+
