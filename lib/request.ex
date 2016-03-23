@@ -14,14 +14,14 @@ defmodule Request do
       type: "join",
       name: r[:name],
       color: ucolor
-    }, []) |> to_string)
-    Roller.pool_add(conn, r[:name], ucolor)
-    users = Roller.pool_get(self())
+    }, []) |> to_string, r[:room])
+    Roller.pool_add(conn, r[:name], ucolor, r[:room])
+    users = Roller.pool_get(self(), r[:room])
     resp = %{
       type: "setup",
       color: ucolor,
       people: (Enum.map(users, fn u ->
-        {_, name, color} = u
+        {_, name, color, _} = u
         %{name: name, color: color}
       end))}
     Socket.Web.send!(
@@ -35,7 +35,7 @@ defmodule Request do
     end))
     dtext = to_string(r[:num]) <> "d" <> to_string(r[:roll])
     resp = %{type: "roll", roll: droll, color: r[:color], text: dtext}
-    Roller.pool_send(Poison.Encoder.encode(resp, []) |> to_string)
+    Roller.pool_send(Poison.Encoder.encode(resp, []) |> to_string, r[:room])
   end
 
 end

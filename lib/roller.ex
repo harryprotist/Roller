@@ -33,36 +33,41 @@ defmodule Roller do
   def pool_loop(list) do
     try do
       receive do
-        {:add, client, name, color} -> list = [ {client, name, color} | list ]
-        {:get, sender} -> send sender, list
+        {:add, client, name, color, room} ->
+          list = [ {client, name, color, room} | list ]
+        {:get, sender, room} -> send sender, (Enum.filter(list, fn c ->
+          elem(c, 3) == room
+        end))
         {:del, conn} ->
           cname = Enum.find_value(list, fn c ->
             case c do
-              {^conn, name, _} -> name
+              {^conn, name, _, _} -> name
               _ -> false
             end
           end)
           IO.inspect cname
           list = Enum.drop_while(list, fn c ->
             case c do
-              {^conn, _, _} -> true
+              {^conn, _, _, _} -> true
               _ -> false
             end
           end)
           IO.inspect list
           Enum.map(list, fn c -> 
             IO.inspect c
-            {uc, _, _} = c 
+            {uc, _, _, _} = c 
             Socket.Web.send!(uc, {:text, Poison.Encoder.encode(%{
               type: "del",
               name: cname 
             }, []) |> to_string}) 
           end)
-        {:send, msg} ->
+        {:send, msg, room} ->
           IO.inspect msg
           Enum.map(list, fn c -> 
-            {conn, _, _} = c
-            Socket.Web.send!(conn, {:text, msg}) 
+            {conn, _, _, croom} = c
+            if room == croom do
+              Socket.Web.send!(conn, {:text, msg}) 
+            end
           end)
       end
       pool_loop(list)
@@ -71,18 +76,18 @@ defmodule Roller do
       pool_loop(list)
     end
   end
-  def pool_add(client, name, color) do
-    send :pool, {:add, client, name, color}
+  def pool_add(client, name, color, room) do
+    send :pool, {:add, client, name, color, room}
   end
-  def pool_get(sender) do
-    send :pool, {:get, sender}
+  def pool_get(sender, room) do
+    send :pool, {:get, sender, room}
     receive do x -> x end
   end
   def pool_del(conn) do
     send :pool, {:del, conn}
   end
-  def pool_send(msg) do
-    send :pool, {:send, msg} 
+  def pool_send(msg, room) do
+    send :pool, {:send, msg, room} 
   end
 
   def accept_loop(server) do

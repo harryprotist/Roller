@@ -1,15 +1,18 @@
 window.roller_client = null;
 window.my_color = null;
+window.my_room = null;
+window.my_name = null;
 
-function set_room(name) {
+function set_room() {
   var room = document.getElementById("room");
-  room.innerHTML = name; 
+  room.innerHTML = window.my_room; 
 }
 
-function roller_join(name) {
+function roller_join() {
   window.roller_client.send(JSON.stringify({
     "type": "join",
-    "name": name
+    "name": window.my_name,
+    "room": window.my_room
   })); 
 }
 
@@ -66,9 +69,9 @@ function roller_connect() {
   };
 }
 window.onload = function() {
-  var name = window.prompt("Enter your name", "Nobody")
-  var room = window.prompt("Enter your room")
-  set_room(room);
+  window.my_name = window.prompt("Enter your name", "Nobody")
+  window.my_room = window.prompt("Enter your room")
+  set_room();
   roller_connect();
   window.roller_client.onopen = function() {
     roller_join(name);
@@ -82,6 +85,7 @@ function roller_roll() {
     "type": "roll",
     "num" : num,
     "roll": sides,
-    "color": my_color
+    "color": window.my_color,
+    "room" : window.my_room 
   }));
 }
