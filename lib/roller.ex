@@ -3,15 +3,14 @@ defmodule Roller do
   def setup do
     :random.seed(:os.timestamp)
     server = Socket.Web.listen! 8800 
-    pool_pid = spawn fn -> pool_loop([]) end
-    color_pid = spawn fn -> color_loop([
+    color_pid = spawn_link fn -> color_loop([
       "#a3a948",
       "#edb92e",
       "#f85931",
       "#ce1836",
       "#009989"
     ]) end
-    Process.register(pool_pid, :pool)
+    Pool.setup()
     Process.register(color_pid, :color)
     accept_loop(server)
   end
@@ -30,66 +29,6 @@ defmodule Roller do
     receive do x -> x end
   end
 
-  def pool_loop(list) do
-    try do
-      receive do
-        {:add, client, name, color, room} ->
-          list = [ {client, name, color, room} | list ]
-        {:get, sender, room} -> send sender, (Enum.filter(list, fn c ->
-          elem(c, 3) == room
-        end))
-        {:del, conn} ->
-          cname = Enum.find_value(list, fn c ->
-            case c do
-              {^conn, name, _, _} -> name
-              _ -> false
-            end
-          end)
-          IO.inspect cname
-          list = Enum.drop_while(list, fn c ->
-            case c do
-              {^conn, _, _, _} -> true
-              _ -> false
-            end
-          end)
-          IO.inspect list
-          Enum.map(list, fn c -> 
-            IO.inspect c
-            {uc, _, _, _} = c 
-            Socket.Web.send!(uc, {:text, Poison.Encoder.encode(%{
-              type: "del",
-              name: cname 
-            }, []) |> to_string}) 
-          end)
-        {:send, msg, room} ->
-          IO.inspect msg
-          Enum.map(list, fn c -> 
-            {conn, _, _, croom} = c
-            if room == croom do
-              Socket.Web.send!(conn, {:text, msg}) 
-            end
-          end)
-      end
-      pool_loop(list)
-    rescue
-      e -> IO.inspect e
-      pool_loop(list)
-    end
-  end
-  def pool_add(client, name, color, room) do
-    send :pool, {:add, client, name, color, room}
-  end
-  def pool_get(sender, room) do
-    send :pool, {:get, sender, room}
-    receive do x -> x end
-  end
-  def pool_del(conn) do
-    send :pool, {:del, conn}
-  end
-  def pool_send(msg, room) do
-    send :pool, {:send, msg, room} 
-  end
-
   def accept_loop(server) do
     client = Socket.Web.accept!(server)
     Socket.Web.accept!(client)
@@ -103,7 +42,7 @@ defmodule Roller do
     case Socket.Web.recv!(conn) do
       {:text, msg} -> respond(conn, msg)
       {:close, _, _} ->
-        pool_del(conn)
+        Pool.del(conn)
         stop = true
       {:ping, _msg} -> Socket.Web.send!(conn, {:pong, ""})
     end
