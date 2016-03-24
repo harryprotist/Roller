@@ -30,10 +30,13 @@ defmodule Request do
   end
 
   def roll(r) do
+    IO.inspect(r)
     droll = Enum.sum(Enum.map(( 1 .. r[:num] ), fn a ->
       trunc(:random.uniform * r[:roll] + 1.0)
-    end))
-    dtext = to_string(r[:num]) <> "d" <> to_string(r[:roll])
+    end)) + r[:bonus]
+    dtext = to_string(r[:num]) <> "d" <>
+            to_string(r[:roll]) <> "+" <>
+            to_string(r[:bonus])
     resp = %{type: "roll", roll: droll, color: r[:color], text: dtext}
     Roller.pool_send(Poison.Encoder.encode(resp, []) |> to_string, r[:room])
   end
