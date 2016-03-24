@@ -20,15 +20,20 @@
   </div>
   <div id="people">
     <div id="roll-settings">
-      <input type="number" class="roll-num" id="rnumber" min="1"
+      <input type="text" pattern="[0-9]*" class="roll-num" id="rnumber" min="1"
         style="text-align:right;" value="1">
       </input>
-      <span id="d">d</span>
-      <input type="number" class="roll-num" value="20"
-        style="float:right;text-align:left;" id="rsides" min="1">
+      <span class="d">d</span>
+      <input type="text" pattern="[0-9]*" class="roll-num" value="20"
+        style="text-align:left;" id="rsides" min="1">
       </input>
+      <span class="d">+</span>
+      <input type="text" pattern="[0-9]*" class="roll-num" value="0"
+        style="text-align:left;" id="rbonus">
     </div>
     <input type="button" id="roll-button" onclick="roller_roll()" value="ROLL">
+    </input>
+    <input type="button" id="clear-button" onclick="clear_rolls()" value="CLEAR">
     </input>
 
   </div>

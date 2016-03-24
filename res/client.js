@@ -16,6 +16,11 @@ function roller_join() {
   })); 
 }
 
+function clear_rolls() {
+  var rolls = document.getElementById("rolls");
+  rolls.innerHTML = "";
+}
+
 function add_person(obj) {
   var people = document.getElementById("people");
   var div = document.createElement("DIV");
@@ -81,10 +86,12 @@ window.onload = function() {
 function roller_roll() {
   var num = document.getElementById("rnumber").value | 0;
   var sides = document.getElementById("rsides").value | 0;
+  var bonus = document.getElementById("rbonus").value | 0;
   window.roller_client.send(JSON.stringify({
     "type": "roll",
     "num" : num,
     "roll": sides,
+    "bonus" : bonus,
     "color": window.my_color,
     "room" : window.my_room 
   }));
