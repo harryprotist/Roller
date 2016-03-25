@@ -1,20 +1,10 @@
 # Roller
 
-**TODO: Add description**
+A websocket based multiplayer dice rolling site. Multiple people can join a
+room and make rolls in the form `<num>d<sides>+<bonus>`. The rolls are then
+sent to everyone in the room.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-  1. Add roller to your list of dependencies in `mix.exs`:
-
-        def deps do
-          [{:roller, "~> 0.0.1"}]
-        end
-
-  2. Ensure roller is started before your application:
-
-        def application do
-          [applications: [:roller]]
-        end
-
+Right now, the application is started by using `Roller.setup` in iex.
+Loading `res/index.html` will connect to the server.
