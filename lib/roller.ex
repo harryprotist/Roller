@@ -2,26 +2,18 @@ defmodule Roller do
 
   def setup do
     server = Socket.Web.listen! 8800 
-    color_pid = spawn_link fn -> color_loop([
-      "#a3a948",
-      "#edb92e",
-      "#f85931",
-      "#ce1836",
-      "#009989"
-    ]) end
+    color_pid = spawn_link fn -> color_loop(0, 5) end
     Pool.setup()
     Process.register(color_pid, :color)
     accept_loop(server)
   end
 
-  def color_loop(list) do
+  def color_loop(cur, len) do
     receive do
       {:next, sender} ->
-        [ first | rest ] = list
-        list = Enum.concat(rest, [first])
-        send sender, first
+        send sender, cur
     end
-    color_loop(list)
+    color_loop(rem(cur + 1, len), len)
   end
   def color_next(sender) do
     send :color, {:next, sender}

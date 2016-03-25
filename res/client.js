@@ -3,6 +3,14 @@ window.my_color = null;
 window.my_room = null;
 window.my_name = null;
 
+window.roller_colors = [
+  "#F85831",
+  "#A3A948",
+  "#CE1836",
+  "#009989",
+  "#EDB92E"
+];
+
 function set_room() {
   var room = document.getElementById("room");
   room.innerHTML = window.my_room; 
@@ -24,8 +32,9 @@ function clear_rolls() {
 function add_person(obj) {
   var people = document.getElementById("people");
   var div = document.createElement("DIV");
+  var color = window.roller_colors[obj.color];
   div.setAttribute("class", "person");
-  div.setAttribute("style", "background:"+obj.color+";");
+  div.setAttribute("style", "background:"+color+";");
   div.setAttribute("id", obj.id);
   div.innerHTML = obj.name;
 
@@ -35,8 +44,9 @@ function add_person(obj) {
 function add_roll(obj) {
   var rolls = document.getElementById("rolls");
   var div = document.createElement("DIV");
+  var color = window.roller_colors[obj.color];
   div.setAttribute("class", "roll"); 
-  div.setAttribute("style", "background:"+obj.color+";");
+  div.setAttribute("style", "background:"+color+";");
   div.setAttribute("title", obj.text);
   div.innerHTML = obj.roll;
 
@@ -60,7 +70,7 @@ function roller_connect() {
     } else if (msg.type === "join") {
       add_person(msg);
     } else if (msg.type === "setup") {
-      window.my_color = msg.color
+      window.my_color = msg.color;
       for (var i = 0; i < msg.people.length; i++) {
         add_person(msg.people[i]);
       }
