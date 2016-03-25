@@ -26,6 +26,7 @@ function add_person(obj) {
   var div = document.createElement("DIV");
   div.setAttribute("class", "person");
   div.setAttribute("style", "background:"+obj.color+";");
+  div.setAttribute("id", obj.id);
   div.innerHTML = obj.name;
 
   people.appendChild(div);
@@ -43,13 +44,8 @@ function add_roll(obj) {
 }
 
 function del_person(obj) {
-  var people = document.getElementById("people");
-  var children = Array.prototype.slice.call(people.childNodes);
-  children.forEach(function(child) {
-    if (child.innerHTML === obj.name) {
-      people.removeChild(child);
-    }
-  });
+  var person = document.getElementById(obj.id);
+  person.parentElement.removeChild(person);
 }
 
 function roller_connect() {
