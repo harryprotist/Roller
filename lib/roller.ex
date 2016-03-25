@@ -1,7 +1,6 @@
 defmodule Roller do
 
   def setup do
-    :random.seed(:os.timestamp)
     server = Socket.Web.listen! 8800 
     color_pid = spawn_link fn -> color_loop([
       "#a3a948",
@@ -33,7 +32,10 @@ defmodule Roller do
     client = Socket.Web.accept!(server)
     Socket.Web.accept!(client)
     IO.puts "Added client"
-    spawn fn -> handle(client) end
+    spawn fn -> 
+      :random.seed(:os.timestamp)
+      handle(client)
+    end
     accept_loop(server)
   end
 

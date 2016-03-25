@@ -10,18 +10,22 @@ defmodule Request do
 
   def join(r, conn) do
     ucolor = Roller.color_next(self())
+    id = :crypto.hash(:sha, inspect(conn)) |> Base.encode64
+    Pool.add(conn, id, r[:name], ucolor, r[:room])
     Pool.msg(conn, Poison.Encoder.encode(%{
       type: "join",
       name: r[:name],
-      color: ucolor
+      color: ucolor,
+      id: id
     }, []) |> to_string)
-    Pool.add(conn, r[:name], ucolor, r[:room])
-    users = Pool.get(conn)
+    users = Pool.get(conn) |> Enum.filter(fn u ->
+      u[:conn] != conn
+    end)
     resp = %{
       type: "setup",
       color: ucolor,
       people: (Enum.map(users, fn u ->
-        %{name: u[:name], color: u[:color]}
+        %{name: u[:name], color: u[:color], id: u[:id]}
       end))}
     Socket.Web.send!(
       conn,
@@ -37,7 +41,7 @@ defmodule Request do
     dtext = to_string(r[:num]) <> "d" <>
             to_string(r[:roll]) <> "+" <>
             to_string(r[:bonus]) <> " " <>
-            r[:name]
+            e[:name]
     resp = %{
       type: "roll",
       roll: droll,

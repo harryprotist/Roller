@@ -6,13 +6,12 @@ defmodule Pool do
   end
 
   defp get_entry(list, conn) do
-    e = Enum.find_value(list, fn c ->
+    Enum.find_value(list, fn c ->
       case c do
         %{conn: ^conn} -> c
         _ -> false
       end
     end)
-    e
   end
 
   defp pool_loop(list) do
@@ -29,14 +28,17 @@ defmodule Pool do
         {:get, conn, sender} ->
           room = get_entry(list, conn)[:room]
           result = Enum.filter(list, fn c ->
-            c[:conn] == conn
+            c[:room] == room
           end)
           send sender, result
         {:del, conn} ->
           e = get_entry(list, conn)
-          list = Enum.drop_while(list, fn c ->
-            c[:conn] == conn 
+          IO.inspect e
+          IO.puts("* Before: " <> to_string(length(list)))
+          list = Enum.filter(list, fn c ->
+            c[:conn] != conn
           end) 
+          IO.puts("*  After: " <> to_string(length(list)))
           Enum.map(list, fn c ->
             Socket.Web.send!(c[:conn], {:text, Poison.Encoder.encode(%{
               type: "del",
@@ -47,7 +49,7 @@ defmodule Pool do
           e = get_entry(list, conn)
           Enum.map(list, fn c ->
             if c[:room] == e[:room] do
-              Socket.Web.send(conn, {:text, msg})
+              Socket.Web.send(c[:conn], {:text, msg})
             end
           end)  
         {:get_entry, conn, sender} ->
@@ -59,9 +61,7 @@ defmodule Pool do
      pool_loop(list)
   end
 
-  def add(conn, name, color, room) do
-    id = :crypto.hash(:sha, inspect(conn)) |> Base.encode64
-    IO.inspect(Process.registered())
+  def add(conn, id, name, color, room) do
     send :pool, {:add, conn, id, name, color, room}
   end
   def get(conn) do
